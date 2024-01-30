@@ -1,30 +1,41 @@
 <script setup>
-const author = ref('')
-const title = ref('')
-const thumbnailLink = ref('')
-const content = ref('')
-const onSubmit = () => {
-  console.log(editedPost)
+import { usePostsStore } from '@/stores/blogposts'
+const store = usePostsStore()
+const route = useRoute()
+const runtimeConfig = useRuntimeConfig()
+const firebaseDbUrl = `${runtimeConfig.public.firebaseDbUrl}/${route.params.postId}.json`
+const { data: responseData, status, error } = await useFetch(firebaseDbUrl)
+const loadedPost = reactive(responseData.value)
+
+const onSubmit = async () => {
+  const currentDate = new Date()
+  loadedPost.updatedDate = useFormatDate(currentDate)
+  console.log(loadedPost)
+  const { data: responseData, status, error } = await useFetch(firebaseDbUrl, {
+    method: 'PUT',
+    body: loadedPost
+  })
+  // data, pending, status and error are Vue refs and they should be accessed with .value when used within the <script setup>
+  // console.log(responseData.value) // if error (401 unauthorized), will be null
+  console.log("error?:", error.value)
+  console.log("status:", status.value) // can be success, error, idle or pending
+  store.updatePost(route.params.postId, loadedPost)
+  await navigateTo('/admin')
 }
-const onCancel = () => {
-  navigateTo('/admin')
+const onCancel = async () => {
+  await navigateTo('/admin')
 }
-(() => {
-  author.value = 'Arti'
-  title.value = 'My first post'
-  thumbnailLink.value = 'https://picsum.photos/id/967/250/250'
-  content.value = 'This is my first post'
-})()
 </script>
 
 <template>
   <div class="p-4">
     <h1 class="h1 text-center">Edit post</h1>
-    <form @submit.prevent="onSubmit" class="max-w-xl mx-auto mt-10">
-      <UiInput v-model="author">Author Name</UiInput>
-      <UiInput v-model="title">Title</UiInput>
-      <UiInput v-model="thumbnailLink">Thumbnail URL</UiInput>
-      <UiInput v-model="content" control-type="textarea">Content</UiInput>
+    <form v-if="!error" @submit.prevent="onSubmit" class="max-w-xl mx-auto mt-10">
+      <UiInput v-model="loadedPost.author">Author Name</UiInput>
+      <UiInput v-model="loadedPost.title">Title</UiInput>
+      <UiInput v-model="loadedPost.thumbnail">Thumbnail URL</UiInput>
+      <UiInput v-model="loadedPost.previewText">Preview text</UiInput>
+      <UiInput v-model="loadedPost.content" control-type="textarea">Content</UiInput>
 
       <!-- Buttons -->
       <div class="flex justify-end gap-2">
@@ -38,5 +49,9 @@ const onCancel = () => {
         </button>
       </div>
     </form>
+    <div v-else>
+      <h2 class="h2">An error occurred when retrieving the post. Please contact the developer.</h2>
+      <div>{{ error.message }}</div>
+    </div>
   </div>
 </template>

@@ -36,7 +36,7 @@ const postLink = computed(() => {
       <div class="w-32 h-32 rounded-2xl overflow-clip group">
         <img class="w-full h-full object-cover transition group-hover:scale-125" :src="thumbnail" alt="Post image" />
       </div>
-      <div class="h-[100px]">
+      <div class="h-[100px] flex-1">
         <h3 class="h3">{{ title }}</h3>
         <p>{{ previewText }}</p>
       </div>

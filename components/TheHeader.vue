@@ -18,7 +18,8 @@ const closeMobileMenu = () => {
   <header>
     <div :class="dynamicStyles" class="px-4 py-2 h-14 tracking-wide flex">
       <SvgMenu @click="openMobileMenu" :class="'md:hidden'" />
-      <p class="ml-auto mr-auto md:ml-0 h-full flex items-center text-2xl tracking-widest pr-8">&lt;Art/Code&gt;</p>
+      <p class="ml-auto mr-auto md:ml-0 h-full flex items-center text-2xl tracking-widest pr-8"><nuxt-link
+          to="/">&lt;Art/Code&gt;</nuxt-link></p>
       <nav class="hidden md:flex h-full items-center justify-center gap-4">
         <nuxt-link to="/">Home</nuxt-link>
         <nuxt-link to="/posts">Blog</nuxt-link>
@@ -64,7 +65,7 @@ const closeMobileMenu = () => {
   opacity: 1;
 }
 
-.router-link-active {
+nav .router-link-active {
   @apply border-b-2;
 }
 </style>

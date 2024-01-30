@@ -1,20 +1,24 @@
 import { defineStore } from 'pinia'
 
-// interface Post {
-//   id: string;
-//   title: string;
-//   author: string;
-//   thumbnail: string;
-//   updatedDate: string;
-//   previewText: string;
-//   content: string;
-// }
+interface Post {
+  title: string;
+  author: string;
+  thumbnail: string;
+  updatedDate: string;
+  previewText: string;
+  content: string;
+}
+
+interface PostsState {
+  posts: Record<string, Post>;
+  singlePost: Post;
+  isAdmin: boolean;
+}
 
 export const usePostsStore = defineStore('blogPosts', {
-  state: () => ({
+  state: (): PostsState => ({
     posts: {},
     singlePost: {
-      id: "",
       title: "",
       author: "",
       thumbnail: "",
@@ -22,24 +26,18 @@ export const usePostsStore = defineStore('blogPosts', {
       previewText: "",
       content: "",
     },
-    postIsLoading: false,
-    error: null,
     isAdmin: false,
   }),
   // actions - like methods in vue
   actions: {
     async fetchPosts() {
-      const firebaseDbUrl = 'https://nuxt-blog-aa8ce-default-rtdb.europe-west1.firebasedatabase.app/posts.json'
+      const runtimeConfig = useRuntimeConfig()
+      const firebaseDbUrl = runtimeConfig.public.firebaseDbUrl + '.json'
       const { data: responseData, status, error, refresh } = await useFetch(firebaseDbUrl)
-      this.posts = responseData.value
-      // this.refreshFn = refresh
+      this.posts = responseData.value as Record<string, Post>
     },
-    // addPost(post: Post) {
-    //   this.posts.push(post)
-    //   this.newPostId++
-    // },
-    // deletePost(idToDelete: string) {
-    //   this.posts = this.posts.filter((post) => post.id !== idToDelete)
-    // }
+    updatePost(postId: string, post: Post) {
+      this.posts[postId] = post
+    }
   }
 })
